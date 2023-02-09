@@ -1,6 +1,6 @@
 {
   "name": "@xzcwx/files",
-  "version": "0.0.0",
+  "version": "0.0.0-alpha",
   "description": "提供一系列对文件的操作处理，友好方便，包括文件下载、MIME文件类型支持等。",
   "main": "index.js",
   "directories": {
