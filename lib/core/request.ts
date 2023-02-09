@@ -21,7 +21,7 @@ export const H = axios.create({
 function __setInterceptorsRequest(
   {token, ...kwargs}: { token?: string, [kwargs: string]: any } = {}
 ) {
-  H.interceptors.request.use((config: AxiosRequestConfig) => {
+  H.interceptors.request.use((config: AxiosRequestConfig): any => {
     if (token) {
       config.headers = {
         "Authorization": token
