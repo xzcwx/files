@@ -1,7 +1,7 @@
-import {downloadFile, downloadFileSync, loads} from "./core/file";
+import {downloadFile, downloadFileSync, loads} from "./core/Files";
 import {FILE_TYPE, FileConfig, FileResponse} from "./types";
 import {H, http, setToken} from "./core/request";
-import MIME from "./mime";
+import * as MIME from "./helpers/mime";
 
 export {
   downloadFile,
