@@ -1,6 +1,6 @@
 {
   "name": "@xzcwx/files",
-  "version": "0.0.0-alpha",
+  "version": "0.0.0-alpha.1",
   "description": "提供一系列对文件的操作处理，友好方便，包括文件下载、MIME文件类型支持等。",
   "main": "index.js",
   "directories": {
@@ -36,6 +36,6 @@
   "devDependencies": {
     "webpack-cli": "^5.0.1"
   },
-  "jsdelivr": "dist/axios.min.js",
-  "unpkg": "dist/axios.min.js"
+  "jsdelivr": "dist/files.min.js",
+  "unpkg": "dist/files.min.js"
 }
