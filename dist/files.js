@@ -123,7 +123,7 @@ function downloadFileSync(file, filename) {
     aEle.id = `__download_${Math.random() * 100000}`;
     aEle.style.display = "none";
     aEle.href = fileUrl;
-    aEle.download = filename ?? file.name ?? "unknown";
+    aEle.download = filename || file.name || "unknown";
     document.body.appendChild(aEle);
     aEle.click();
     document.body.removeChild(aEle);
