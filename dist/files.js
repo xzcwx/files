@@ -35,12 +35,12 @@
 /************************************************************************/
 var __webpack_exports__ = {};
 
-// UNUSED EXPORTS: FILE_TYPE, FileConfig, FileResponse, H, MIME, default, downloadFile, downloadFileSync, http, loads, setToken
+// UNUSED EXPORTS: downloadFile, downloadFileSync, http, loads, poller, setToken
 
-// NAMESPACE OBJECT: ./lib/mime/mime.conf.ts
-var mime_conf_namespaceObject = {};
-__webpack_require__.r(mime_conf_namespaceObject);
-__webpack_require__.d(mime_conf_namespaceObject, {
+// NAMESPACE OBJECT: ./lib/helpers/mime.js
+var mime_namespaceObject = {};
+__webpack_require__.r(mime_namespaceObject);
+__webpack_require__.d(mime_namespaceObject, {
   "AVI": function() { return AVI; },
   "CSV": function() { return CSV; },
   "EXCEL": function() { return EXCEL; },
@@ -61,35 +61,38 @@ __webpack_require__.d(mime_conf_namespaceObject, {
   "_7Z": function() { return _7Z; }
 });
 
-// NAMESPACE OBJECT: ./lib/files.ts
-var files_namespaceObject = {};
-__webpack_require__.r(files_namespaceObject);
-__webpack_require__.d(files_namespaceObject, {
-  "H": function() { return H; },
-  "MIME": function() { return mime; },
+// NAMESPACE OBJECT: ./lib/core/filesHandle.js
+var filesHandle_namespaceObject = {};
+__webpack_require__.r(filesHandle_namespaceObject);
+__webpack_require__.d(filesHandle_namespaceObject, {
   "downloadFile": function() { return downloadFile; },
   "downloadFileSync": function() { return downloadFileSync; },
-  "http": function() { return http; },
   "loads": function() { return loads; },
+  "poller": function() { return poller; }
+});
+
+// NAMESPACE OBJECT: ./lib/core/request.js
+var request_namespaceObject = {};
+__webpack_require__.r(request_namespaceObject);
+__webpack_require__.d(request_namespaceObject, {
+  "H": function() { return H; },
+  "http": function() { return http; },
+  "m": function() { return m; },
   "setToken": function() { return setToken; }
 });
 
-;// CONCATENATED MODULE: ./lib/mime/mime.conf.ts
-// MIME 互联网媒体类型配置
-// 微软Excel电子表格
+;// CONCATENATED MODULE: ./lib/helpers/mime.js
 const EXCEL = [
     "application/ms-excel",
     "application/vnd.ms-excel",
     "application/x-msexcel"
 ];
 const EXCEL_X = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-// 微软PPT演示文档
 const PPT = [
     "application/ms-powerpoint",
     "application/vnd.ms-project"
 ];
 const PPT_X = "application/vnd.openxmlformats-officedocument.presentationml.presentation";
-// 微软Word文档
 const WORD = "application/msword";
 const WORD_X = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 const ZIP = "application/zip";
@@ -103,28 +106,17 @@ const JAVASCRIPT = "text/javascript";
 const MP4 = "video/mp4";
 const AVI = "video/avi";
 const MP3 = "audio/mpeg";
-// 二进制流数据
 const OCTET_STREAM = "application/octet-stream";
 
-;// CONCATENATED MODULE: ./lib/mime/index.ts
-
-
-/* harmony default export */ var mime = ({ ...mime_conf_namespaceObject });
-
-;// CONCATENATED MODULE: ./lib/core/file.ts
+;// CONCATENATED MODULE: ./lib/core/filesHandle.js
 
 
 function loads(bytes, config = {
     filename: "file",
-    type: mime.OCTET_STREAM
+    type: OCTET_STREAM
 }) {
     return new File([bytes], config.filename, config);
 }
-/**
- * 文件下载函数「同步」
- * @param file File或则Blob对象
- * @param filename 文件名, 若未指定则尝试使用file对象name属性
- */
 function downloadFileSync(file, filename) {
     const aEle = document.createElement("a");
     const fileUrl = URL.createObjectURL(file);
@@ -139,6 +131,30 @@ function downloadFileSync(file, filename) {
 }
 async function downloadFile(file, ...args) {
     await downloadFileSync(file, ...args);
+}
+function poller({ fn, meta, interval = 300, timeout = 3000 } = {}) {
+    let _Succ_State = false;
+    let _Fail_State = false;
+    const startTimeStamp = (new Date()).getTime();
+    const success = () => {
+        _Succ_State = true;
+    };
+    const fail = () => {
+        _Fail_State = true;
+    };
+    return new Promise((resolve, reject) => {
+        const timerObj = window.setInterval(async () => {
+            const msg = await fn(success, fail, meta);
+            if (_Succ_State) {
+                clearInterval(timerObj);
+                resolve(msg);
+            }
+            if (_Fail_State && ((new Date).getTime() - startTimeStamp > timeout)) {
+                clearInterval(timerObj);
+                reject("The poller timed out");
+            }
+        }, interval);
+    });
 }
 
 ;// CONCATENATED MODULE: ./node_modules/axios/lib/helpers/bind.js
@@ -3564,20 +3580,13 @@ axios.default = axios;
 // this module should only have a default export
 /* harmony default export */ var lib_axios = (axios);
 
-;// CONCATENATED MODULE: ./lib/utils.ts
+;// CONCATENATED MODULE: ./lib/utils.js
 
-/**
- * 提取文件名辅助函数
- * @param string 需提取值
- * @param re 自定义提取规则
- * @param keyword 分组关键字，默认filename
- * @return {string | undefined} 提取结果
- */
 function extractFileName(string, re, keyword = "filename") {
     return (new RegExp(re ?? `filename=(?<${keyword}>[\w.]+);?`)).exec(string)?.groups?.[keyword];
 }
 
-;// CONCATENATED MODULE: ./lib/core/request.ts
+;// CONCATENATED MODULE: ./lib/core/request.js
 
 
 
@@ -3588,9 +3597,6 @@ const m = {
 const H = lib_axios.create({
     timeout: 10 * 60 * 1000
 });
-/**
- * 请求拦截
- */
 function __setInterceptorsRequest({ token, ...kwargs } = {}) {
     H.interceptors.request.use((config) => {
         if (token) {
@@ -3599,7 +3605,6 @@ function __setInterceptorsRequest({ token, ...kwargs } = {}) {
             };
         }
         else {
-            // 尝试获取token
             try {
                 const token = localStorage.token ? JSON.parse(localStorage.token) : {};
                 config.headers = {
@@ -3611,17 +3616,12 @@ function __setInterceptorsRequest({ token, ...kwargs } = {}) {
         return Object.assign(config, kwargs);
     });
 }
-/**
- * 响应拦截
- */
 function __setInterceptorsResponse() {
     H.interceptors.response.use((response) => {
         const { status, data, headers } = response;
-        // 文件数据流为空错误提示
         if (!data) {
             return Promise.reject(new Error(m.errGetMessage));
         }
-        // 服务器异常提示
         if (status > 500) {
             return Promise.reject(new Error(m.errServMessage));
         }
@@ -3635,21 +3635,11 @@ function __setInterceptorsResponse() {
 function setToken(token) {
     __setInterceptorsRequest({ token });
 }
-/**
- * http文件请求
- * @param url 请求路径
- * @param config 配置参数
- * @param prefix 请求路径前缀
- * @return {Promise<AxiosResponse<any>>}
- */
 async function http(url, config = { method: "POST" }, prefix = undefined) {
-    // 去除api前缀
     if (/^\/?api\//i.test(url)) {
         url = url.replace(/^\/?api\//i, "");
     }
-    // 添加自定义前缀
     prefix && (url = prefix + url);
-    // 请求配置
     if (/^post$/i.test(config.method)) {
         return H.post(url, config.data, config);
     }
@@ -3664,26 +3654,26 @@ function __init__() {
 }
 __init__();
 
-;// CONCATENATED MODULE: ./lib/files.ts
+;// CONCATENATED MODULE: ./lib/env/dataSet.js
+const dataSet_VERSION = "";
+
+;// CONCATENATED MODULE: ./lib/index.js
 
 
 
 
+const { downloadFileSync: lib_downloadFileSync, downloadFile: lib_downloadFile, poller: lib_poller, loads: lib_loads } = filesHandle_namespaceObject;
+const { http: lib_http, setToken: lib_setToken } = request_namespaceObject;
+const Files = {
+    downloadFileSync: lib_downloadFileSync, downloadFile: lib_downloadFile, poller: lib_poller, loads: lib_loads,
+    http: lib_http, setToken: lib_setToken,
+    MIME: mime_namespaceObject,
+    VERSION: dataSet_VERSION
+};
+/* harmony default export */ var lib = ((/* unused pure expression or super */ null && (Files)));
 
 ;// CONCATENATED MODULE: ./index.js
 
-const {
-  downloadFile: index_downloadFile,
-  downloadFileSync: index_downloadFileSync,
-  loads: index_loads,
-  H: index_H,
-  http: index_http,
-  setToken: index_setToken,
-  MIME,
-  FILE_TYPE,
-  FileConfig,
-  FileResponse
-} = files_namespaceObject;
 
 /******/ })()
 ;

@@ -2,16 +2,16 @@
 
 import axios from "axios";
 
-import {AxiosResponse, AxiosRequestConfig} from "axios";
+import {AxiosResponse, AxiosRequestConfig, AxiosInstance} from "axios";
 import {extractFileName} from "../utils";
-import {FileResponse} from "../types/common";
+import {FileResponse} from "../types";
 
 export const m = {
   errGetMessage: "文件获取失败",
   errServMessage: "服务器错误"
 };
 
-export const H = axios.create({
+export const H: AxiosInstance = axios.create({
   timeout: 10 * 60 * 1000
 });
 

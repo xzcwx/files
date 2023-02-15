@@ -1,8 +1,7 @@
 "use strict";
 
 import * as MIME from "../helpers/mime";
-
-import {FILE_TYPE, FileConfig} from "../types";
+import {FileType, FileConfig} from "../types";
 
 export function loads(bytes: ArrayBuffer, config: FileConfig = {
   filename: "file",
@@ -16,7 +15,7 @@ export function loads(bytes: ArrayBuffer, config: FileConfig = {
  * @param file File或则Blob对象
  * @param filename 文件名, 若未指定则尝试使用file对象name属性
  */
-export function downloadFileSync(file: FILE_TYPE, filename?: string) {
+export function downloadFileSync(file: FileType, filename?: string) {
   const aEle = document.createElement("a");
   const fileUrl = URL.createObjectURL(file);
   aEle.id = `__download_${Math.random() * 100000}`;
@@ -29,7 +28,7 @@ export function downloadFileSync(file: FILE_TYPE, filename?: string) {
   URL.revokeObjectURL(fileUrl);
 }
 
-export async function downloadFile(file: FILE_TYPE, ...args: any[]) {
+export async function downloadFile(file: FileType, ...args: any[]) {
   await downloadFileSync(file, ...args);
 }
 
