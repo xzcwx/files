@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    // "target": "ESNext",
+    "target": "ES2017",
+    "outDir": "./lib",
+    // "rootDir": "./src",
+    "moduleResolution": "node",
+    "lib": ["DOM", "ES2015", "ScriptHost", "ES2019.Array"],
+    "strict": true,
+    "allowJs": true,
+    "declaration": true,
+    "alwaysStrict": true,
+    "removeComments": true
+    // "listFiles": true
+  },
+  "include": [
+    "./src"
+  ],
+  "exclude": ["./dist", "./lib", "./test", "./bin"]
+}
+

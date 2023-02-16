@@ -5,4 +5,4 @@ export declare const m: {
 };
 export declare const H: AxiosInstance;
 export declare function setToken(token: string): void;
-export declare function http(url: string, config?: AxiosRequestConfig, prefix?: any): Promise<AxiosResponse<any, any>>;
+export declare function http(url: string, config?: AxiosRequestConfig, prefix?: undefined): Promise<AxiosResponse<any, any>>;

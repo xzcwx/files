@@ -4,7 +4,7 @@ const UnminifiedWebpackPlugin = require("unminified-webpack-plugin");
 const {CleanWebpackPlugin} = require("clean-webpack-plugin");
 
 module.exports = {
-    mode: "production",
+  mode: "production",
   //  mode: "development",
   entry: "./index.js",
   output: {

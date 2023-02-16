@@ -7,7 +7,7 @@
  * @param keyword 分组关键字，默认filename
  * @return {string | undefined} 提取结果
  */
-export function extractFileName(string: string, re?: string, keyword: string = "filename") {
-  return (new RegExp(re ?? `filename=(?<${keyword}>[\w.]+);?`)).exec(string)?.groups?.[keyword];
+export function extractFileName(string: string, re?: string, keyword: string = "filename"): string {
+  return (new RegExp(re ?? `filename=(?<${keyword}>[\w.]+);?`)).exec(string)?.groups?.[keyword] ?? "";
 }
 

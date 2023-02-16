@@ -24,14 +24,14 @@ function __setInterceptorsRequest(
   H.interceptors.request.use((config: AxiosRequestConfig): any => {
     if (token) {
       config.headers = {
-        "Authorization": token
+        Authorization: token
       };
     } else {
       // 尝试获取token
       try {
         const token = localStorage.token ? JSON.parse(localStorage.token) : {};
         config.headers = {
-          "Authorization": token.authorization ?? ""
+          Authorization: token.authorization ?? ""
         };
       } catch {}
     }
