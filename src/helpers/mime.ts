@@ -4,7 +4,8 @@
 
 // 二进制流数据
 export const OCTET_STREAM = "application/octet-stream";
-
+// 全部文件类型
+export const ALL = "*.*";
 // 图片通用类型
 export const IMAGE = "image/*";
 // 视频通用类型
