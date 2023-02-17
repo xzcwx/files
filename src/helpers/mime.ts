@@ -1,4 +1,16 @@
-// MIME 互联网媒体类型配置
+/*
+* MIME 互联网媒体类型配置
+*/
+
+// 二进制流数据
+export const OCTET_STREAM = "application/octet-stream";
+
+// 图片通用类型
+export const IMAGE = "image/*";
+// 视频通用类型
+export const VIDEO = "video/*";
+// 音频通用类型
+export const AUDIO = "audio/*";
 
 // 微软Excel电子表格
 export const EXCEL = [
@@ -34,5 +46,10 @@ export const AVI = "video/avi";
 
 export const MP3 = "audio/mpeg";
 
-// 二进制流数据
-export const OCTET_STREAM = "application/octet-stream";
+export const JEPG = "image/jpeg";
+export const PNG = "image/png";
+export const WEBP = "image/webp";
+export const ICO = "image/icon";
+export const TIFF = "image/tiff";
+export const BMP = "image/bmp";
+export const GIF = "image/gif";
