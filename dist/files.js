@@ -35,25 +35,36 @@
 /************************************************************************/
 var __webpack_exports__ = {};
 
-// UNUSED EXPORTS: downloadFile, downloadFileSync, http, loads, poller, setToken
+// UNUSED EXPORTS: MIME, downloadFile, downloadFileSync, http, loadsBytes, openFileDialog, poller, setToken
 
 // NAMESPACE OBJECT: ./lib/helpers/mime.js
 var mime_namespaceObject = {};
 __webpack_require__.r(mime_namespaceObject);
 __webpack_require__.d(mime_namespaceObject, {
+  "ALL": function() { return ALL; },
+  "AUDIO": function() { return AUDIO; },
   "AVI": function() { return AVI; },
+  "BMP": function() { return BMP; },
   "CSV": function() { return CSV; },
   "EXCEL": function() { return EXCEL; },
   "EXCEL_X": function() { return EXCEL_X; },
+  "GIF": function() { return GIF; },
   "GZIP": function() { return GZIP; },
+  "ICO": function() { return ICO; },
+  "IMAGE": function() { return IMAGE; },
   "JAVASCRIPT": function() { return JAVASCRIPT; },
+  "JEPG": function() { return JEPG; },
   "MP3": function() { return MP3; },
   "MP4": function() { return MP4; },
   "OCTET_STREAM": function() { return OCTET_STREAM; },
+  "PNG": function() { return PNG; },
   "PPT": function() { return PPT; },
   "PPT_X": function() { return PPT_X; },
   "RAR": function() { return RAR; },
   "TEXT": function() { return TEXT; },
+  "TIFF": function() { return TIFF; },
+  "VIDEO": function() { return VIDEO; },
+  "WEBP": function() { return WEBP; },
   "WORD": function() { return WORD; },
   "WORD_X": function() { return WORD_X; },
   "XML": function() { return XML; },
@@ -67,7 +78,8 @@ __webpack_require__.r(filesHandle_namespaceObject);
 __webpack_require__.d(filesHandle_namespaceObject, {
   "downloadFile": function() { return downloadFile; },
   "downloadFileSync": function() { return downloadFileSync; },
-  "loads": function() { return loads; },
+  "loadsBytes": function() { return loadsBytes; },
+  "openFileDialog": function() { return openFileDialog; },
   "poller": function() { return poller; }
 });
 
@@ -82,6 +94,11 @@ __webpack_require__.d(request_namespaceObject, {
 });
 
 ;// CONCATENATED MODULE: ./lib/helpers/mime.js
+const OCTET_STREAM = "application/octet-stream";
+const ALL = "*.*";
+const IMAGE = "image/*";
+const VIDEO = "video/*";
+const AUDIO = "audio/*";
 const EXCEL = [
     "application/ms-excel",
     "application/vnd.ms-excel",
@@ -106,12 +123,27 @@ const JAVASCRIPT = "text/javascript";
 const MP4 = "video/mp4";
 const AVI = "video/avi";
 const MP3 = "audio/mpeg";
-const OCTET_STREAM = "application/octet-stream";
+const JEPG = "image/jpeg";
+const PNG = "image/png";
+const WEBP = "image/webp";
+const ICO = "image/icon";
+const TIFF = "image/tiff";
+const BMP = "image/bmp";
+const GIF = "image/gif";
 
 ;// CONCATENATED MODULE: ./lib/core/filesHandle.js
 
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 
-function loads(bytes, config = {
+function loadsBytes(bytes, config = {
     filename: "file",
     type: OCTET_STREAM
 }) {
@@ -120,7 +152,7 @@ function loads(bytes, config = {
 function downloadFileSync(file, filename) {
     const aEle = document.createElement("a");
     const fileUrl = URL.createObjectURL(file);
-    aEle.id = `__download_${Math.random() * 100000}`;
+    aEle.id = `__download_${Math.trunc(Math.random() * 100000)}`;
     aEle.style.display = "none";
     aEle.href = fileUrl;
     aEle.download = filename || file.name || "unknown";
@@ -129,8 +161,68 @@ function downloadFileSync(file, filename) {
     document.body.removeChild(aEle);
     URL.revokeObjectURL(fileUrl);
 }
-async function downloadFile(file, ...args) {
-    await downloadFileSync(file, ...args);
+function downloadFile(file, ...args) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield downloadFileSync(file, ...args);
+    });
+}
+function openFileDialog({ accept = ALL, compatible = true, cancel = 300, multiple, webkitdirectory, description } = {}) {
+    var _a;
+    return __awaiter(this, void 0, void 0, function* () {
+        accept.constructor === Array && (accept = accept.join(","));
+        if (!compatible && window.hasOwnProperty("showOpenFilePicker")) {
+            console.warn("Note that showOpenFilePicker is an experimental interface and is not supported by most browsers, so use it sparingly.");
+            const files = [];
+            const acceptMap = {};
+            for (let a of accept.split(",")) {
+                acceptMap[a] = [];
+            }
+            const fileHandleList = yield ((_a = window.showOpenFilePicker) === null || _a === void 0 ? void 0 : _a.call(window, {
+                multiple,
+                excludeAcceptAllOption: false,
+                types: [{
+                        description,
+                        accept: acceptMap
+                    }]
+            }));
+            for (const f of fileHandleList) {
+                files.push(yield f.getFile());
+            }
+            return files;
+        }
+        const inpEle = document.createElement("input");
+        inpEle.id = `__file_${Math.trunc(Math.random() * 100000)}`;
+        inpEle.type = "file";
+        inpEle.style.display = "none";
+        inpEle.accept = accept;
+        multiple && (inpEle.multiple = multiple);
+        if (webkitdirectory) {
+            console.warn("该特性是非标准的，请尽量不要在生产环境中使用它！\n"
+                + "This feature is non-standard, so try not to use it in a production environment!");
+            inpEle.webkitdirectory = webkitdirectory;
+        }
+        inpEle.click();
+        return yield new Promise((resolve, reject) => {
+            let _isSelected = false;
+            const changeEvent = () => {
+                const files = inpEle.files;
+                if (files) {
+                    _isSelected = true;
+                    resolve(Array.from(files));
+                }
+            };
+            const focusEvent = (event) => {
+                var _a;
+                if (((_a = event.target) === null || _a === void 0 ? void 0 : _a.constructor) === Window) {
+                    setTimeout(() => {
+                        !_isSelected && reject("未选定文件\nUnselected file");
+                    }, cancel);
+                }
+            };
+            inpEle.addEventListener("change", changeEvent, { once: true });
+            cancel && window.addEventListener("focus", focusEvent, { once: true });
+        });
+    });
 }
 function poller({ fn, meta, interval = 300, timeout = 3000 } = {}) {
     let _Succ_State = false;
@@ -143,8 +235,8 @@ function poller({ fn, meta, interval = 300, timeout = 3000 } = {}) {
         _Fail_State = true;
     };
     return new Promise((resolve, reject) => {
-        const timerObj = window.setInterval(async () => {
-            const msg = await fn(success, fail, meta);
+        const timerObj = window.setInterval(() => __awaiter(this, void 0, void 0, function* () {
+            const msg = yield fn(success, fail, meta);
             if (_Succ_State) {
                 clearInterval(timerObj);
                 resolve(msg);
@@ -153,7 +245,7 @@ function poller({ fn, meta, interval = 300, timeout = 3000 } = {}) {
                 clearInterval(timerObj);
                 reject("The poller timed out");
             }
-        }, interval);
+        }), interval);
     });
 }
 
@@ -3583,11 +3675,32 @@ axios.default = axios;
 ;// CONCATENATED MODULE: ./lib/utils.js
 
 function extractFileName(string, re, keyword = "filename") {
-    return (new RegExp(re ?? `filename=(?<${keyword}>[\w.]+);?`)).exec(string)?.groups?.[keyword];
+    var _a, _b, _c;
+    return (_c = (_b = (_a = (new RegExp(re !== null && re !== void 0 ? re : `filename=(?<${keyword}>[\w.]+);?`)).exec(string)) === null || _a === void 0 ? void 0 : _a.groups) === null || _b === void 0 ? void 0 : _b[keyword]) !== null && _c !== void 0 ? _c : "";
 }
 
 ;// CONCATENATED MODULE: ./lib/core/request.js
 
+var request_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __rest = (undefined && undefined.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+};
 
 
 const m = {
@@ -3597,21 +3710,23 @@ const m = {
 const H = lib_axios.create({
     timeout: 10 * 60 * 1000
 });
-function __setInterceptorsRequest({ token, ...kwargs } = {}) {
+function __setInterceptorsRequest(_a = {}) {
+    var { token } = _a, kwargs = __rest(_a, ["token"]);
     H.interceptors.request.use((config) => {
+        var _a;
         if (token) {
             config.headers = {
-                "Authorization": token
+                Authorization: token
             };
         }
         else {
             try {
                 const token = localStorage.token ? JSON.parse(localStorage.token) : {};
                 config.headers = {
-                    "Authorization": token.authorization ?? ""
+                    Authorization: (_a = token.authorization) !== null && _a !== void 0 ? _a : ""
                 };
             }
-            catch { }
+            catch (_b) { }
         }
         return Object.assign(config, kwargs);
     });
@@ -3625,27 +3740,22 @@ function __setInterceptorsResponse() {
         if (status > 500) {
             return Promise.reject(new Error(m.errServMessage));
         }
-        return {
-            ...response,
-            filename: extractFileName(headers["content-disposition"]),
-            content: data
-        };
+        return Object.assign(Object.assign({}, response), { filename: extractFileName(headers["content-disposition"]), content: data });
     });
 }
 function setToken(token) {
     __setInterceptorsRequest({ token });
 }
-async function http(url, config = { method: "POST" }, prefix = undefined) {
-    if (/^\/?api\//i.test(url)) {
-        url = url.replace(/^\/?api\//i, "");
-    }
-    prefix && (url = prefix + url);
-    if (/^post$/i.test(config.method)) {
-        return H.post(url, config.data, config);
-    }
-    return H.get(url, {
-        params: config.data,
-        ...config
+function http(url, config = { method: "POST" }, prefix = undefined) {
+    return request_awaiter(this, void 0, void 0, function* () {
+        if (/^\/?api\//i.test(url)) {
+            url = url.replace(/^\/?api\//i, "");
+        }
+        prefix && (url = prefix + url);
+        if (/^post$/i.test(config.method)) {
+            return H.post(url, config.data, config);
+        }
+        return H.get(url, Object.assign({ params: config.data }, config));
     });
 }
 function __init__() {
@@ -3662,10 +3772,11 @@ const dataSet_VERSION = "";
 
 
 
-const { downloadFileSync: lib_downloadFileSync, downloadFile: lib_downloadFile, poller: lib_poller, loads: lib_loads } = filesHandle_namespaceObject;
+const { downloadFileSync: lib_downloadFileSync, downloadFile: lib_downloadFile, poller: lib_poller, loadsBytes: lib_loadsBytes, openFileDialog: lib_openFileDialog } = filesHandle_namespaceObject;
 const { http: lib_http, setToken: lib_setToken } = request_namespaceObject;
+
 const Files = {
-    downloadFileSync: lib_downloadFileSync, downloadFile: lib_downloadFile, poller: lib_poller, loads: lib_loads,
+    downloadFileSync: lib_downloadFileSync, downloadFile: lib_downloadFile, poller: lib_poller, loadsBytes: lib_loadsBytes, openFileDialog: lib_openFileDialog,
     http: lib_http, setToken: lib_setToken,
     MIME: mime_namespaceObject,
     VERSION: dataSet_VERSION
@@ -3673,6 +3784,14 @@ const Files = {
 /* harmony default export */ var lib = ((/* unused pure expression or super */ null && (Files)));
 
 ;// CONCATENATED MODULE: ./index.js
+
+//  $$\   $$\   $$$$$$$$\    $$$$$$$\   $$\  $$\  $$\   $$\   $$\
+//  \$$\ $$  |  \____$$  |  $$  _____|  $$ | $$ | $$ |  \$$\ $$  |
+//   \$$$$  /     $$$$ _/   $$ /        $$ | $$ | $$ |   \$$$$  /
+//  $$  $$<     $$  _/   $  $ |      $  $ | $$ | $$ |   $$  $$<
+//  $$  /\$$\   $$$$$$$$\   \$$$$$$$\   \$$$$$\$$$$  |  $$  /\$$\
+//  \__/  \__|  \________|   \_______|   \_____\____/   \__/  \__|
+
 
 
 /******/ })()
