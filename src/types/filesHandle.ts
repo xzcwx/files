@@ -17,8 +17,9 @@ export interface FileConfig {
 // 文件对话框配置属性
 export interface FileDialogConfig {
   accept?: string | string[];
-  multiple?: boolean;
-  webkitdirectory?: boolean;
   compatible?: boolean;
   cancel?: number;
+  multiple?: boolean;
+  webkitdirectory?: boolean;
+  description?: string;
 }

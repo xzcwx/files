@@ -45,31 +45,50 @@ export async function downloadFile(file: FileType, ...args: any[]) {
  * @param {string | string[]} accept 文件类型限制 ，默认全部
  * @param {boolean} multiple 文件多选
  * @param {boolean} webkitdirectory 只选择目录限制
- * @param {number} compatible 兼容模式
+ * @param {number} compatible 兼容模式，默认开启
  * @param {number} cancel 兼容取消控制，为0时候则取消文件时不抛出reject，❗在使用async/await时会造成阻塞
+ * @param {string} description 文件或者文件夹的描述，可选
  * @return {Promise<FileList>}
  */
 export async function openFileDialog(
   {
     accept = MIME.ALL,
+    compatible = true,
+    cancel = 300,
     multiple,
     webkitdirectory,
-    compatible = false,
-    cancel = 300
+    description
   }: FileDialogConfig = {}
-): Promise<FileList> {
-  // if (!compatible && window.hasOwnProperty("showOpenFilePicker")) {
-  //   console.log("既然有就走呗");
-  //   //@ts-ignore
-  //   return await window.showOpenFilePicker?.();
-  // }
+): Promise<File[]> {
+  accept.constructor === Array && (accept = accept.join(","));
+  // 实验性功能
+  if (!compatible && window.hasOwnProperty("showOpenFilePicker")) {
+    console.warn("Note that showOpenFilePicker is an experimental interface and is not supported by most browsers, so use it sparingly.");
+    const files = [];
+    const acceptMap: { [accept: string]: string[] } = {};
+    for (let a of (accept as string).split(",")) {
+      acceptMap[a] = [];
+    }
+    //@ts-ignore
+    const fileHandleList = await window.showOpenFilePicker?.({
+      multiple,
+      excludeAcceptAllOption: false,
+      types: [{
+        description,
+        accept: acceptMap
+      }]
+    });
+    for (const f of fileHandleList) {
+      files.push(await f.getFile());
+    }
+    return files;
+  }
 
   const inpEle = document.createElement("input");
   inpEle.id = `__file_${Math.trunc(Math.random() * 100000)}`;
   inpEle.type = "file";
   inpEle.style.display = "none";
   // 文件类型限制
-  accept.constructor === Array && (accept = accept.join(","));
   inpEle.accept = accept as string;
   // 多选限制
   multiple && (inpEle.multiple = multiple);
@@ -84,15 +103,13 @@ export async function openFileDialog(
   return await new Promise((resolve, reject) => {
     let _isSelected = false;
     const changeEvent = () => {
-      console.log("触发change");
       const files = inpEle.files;
       if (files) {
         _isSelected = true;
-        resolve(files as FileList);
+        resolve(Array.from(files));
       }
     };
     const focusEvent = (event: Event) => {
-      console.log("触发fous");
       if (event.target?.constructor === Window) {
         setTimeout(() => {
           !_isSelected && reject("未选定文件\nUnselected file");
