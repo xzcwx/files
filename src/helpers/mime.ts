@@ -41,6 +41,7 @@ export const TEXT = "text/plain";
 export const CSV = "text/csv";
 export const XML = "text/xml";
 export const JAVASCRIPT = "text/javascript";
+export const MARKDOWN = "text/markdown";
 
 export const MP4 = "video/mp4";
 export const AVI = "video/avi";

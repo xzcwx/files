@@ -17,6 +17,7 @@ export declare const TEXT = "text/plain";
 export declare const CSV = "text/csv";
 export declare const XML = "text/xml";
 export declare const JAVASCRIPT = "text/javascript";
+export declare const MARKDOWN = "text/markdown";
 export declare const MP4 = "video/mp4";
 export declare const AVI = "video/avi";
 export declare const MP3 = "audio/mpeg";
