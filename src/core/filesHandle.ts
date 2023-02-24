@@ -98,7 +98,6 @@ export async function openFileDialog(
       + "This feature is non-standard, so try not to use it in a production environment!");
     inpEle.webkitdirectory = webkitdirectory;
   }
-  inpEle.click();
 
   return await new Promise((resolve, reject) => {
     let _isSelected = false;
@@ -118,6 +117,7 @@ export async function openFileDialog(
     };
     inpEle.addEventListener("change", changeEvent, {once: true});
     cancel && window.addEventListener("focus", focusEvent, {once: true});
+    inpEle.click();
   });
 }
 
