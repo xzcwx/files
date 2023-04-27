@@ -1,7 +1,7 @@
 "use strict";
 
 import * as MIME from "../helpers/mime";
-import {FileType, FileConfig, FileDialogConfig} from "../types";
+import {FileType, FileConfig, FileDialogConfig, Poller} from "../types";
 
 /**
  * 读取二进制文件
@@ -124,23 +124,24 @@ export async function openFileDialog(
 /**
  * 文件状态轮询器
  * @param fn 执行函数体
+ * @param failFn 执行失败函数体
  * @param meta 传递给执行函数参数
  * @param interval 轮询间隔
  * @param timeout 超时时间
  * @return {Promise<unknown>}
  */
-export function poller<T = any>(
-  {fn, meta, interval = 300, timeout = 3000}: any = {}
+export function poller<T = unknown>(
+  {fn, failFn, meta, interval = 300, timeout = 3000}: Poller.Args
 ): Promise<T> {
   let _Succ_State = false;
   let _Fail_State = false;
   // 起始时间戳
   const startTimeStamp = (new Date()).getTime();
-  // 成功
+  // 触发轮询成功执行体
   const success = () => {
     _Succ_State = true;
   };
-  // 失败
+  // 触发轮询失败执行体
   const fail = () => {
     _Fail_State = true;
   };
@@ -152,12 +153,17 @@ export function poller<T = any>(
       if (_Succ_State) {
         // 结束定时器线程
         clearInterval(timerObj);
-        resolve(msg);
+        resolve(msg as T);
       }
-      // 超时判断失败
-      if (_Fail_State && ((new Date).getTime() - startTimeStamp > timeout)) {
+      // 手动抛出失败或超时失败
+      if (_Fail_State || ((new Date()).getTime() - startTimeStamp > timeout)) {
         // 结束定时器线程
         clearInterval(timerObj);
+        if (failFn) {
+          const msg = failFn(meta);
+          return resolve(msg as T);
+        }
+        // 未指定错误回调情况下抛出异常
         reject("The poller timed out");
       }
     }, interval);

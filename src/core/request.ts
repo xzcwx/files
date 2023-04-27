@@ -70,7 +70,7 @@ export function setToken(token: string) {
  * http文件请求
  * @param url 请求路径
  * @param config 配置参数
- * @param prefix 请求路径前缀
+ * @param prefix 自定义请求路径前缀
  * @return {Promise<AxiosResponse<any>>}
  */
 export async function http(

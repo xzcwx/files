@@ -23,3 +23,18 @@ export interface FileDialogConfig {
   webkitdirectory?: boolean;
   description?: string;
 }
+
+// 轮询器参数
+export namespace Poller {
+  export type Fn = (success: () => void, fail: () => void,
+                    ...args: unknown[]) => Promise<unknown>;
+  export type FailFn = (...args: unknown[]) => unknown;
+
+  export interface Args {
+    fn: Fn;
+    failFn?: FailFn;
+    meta?: unknown;
+    interval?: number;
+    timeout?: number;
+  }
+}
